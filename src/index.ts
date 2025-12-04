@@ -19,7 +19,7 @@ async function run(): Promise<void> {
     let validationMessages: string[] = []
 
     if (mandatoryAssignee) {
-      if (pr.assignee == null) {
+      if (pr.assignees == null || pr.assignees.length === 0) {
         isValid = false
         validationMessages.push('Pull request must have an assignee.')
       }

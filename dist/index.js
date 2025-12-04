@@ -29986,7 +29986,7 @@ function run() {
             let isValid = true;
             let validationMessages = [];
             if (mandatoryAssignee) {
-                if (pr.assignee == null) {
+                if (pr.assignees == null || pr.assignees.length === 0) {
                     isValid = false;
                     validationMessages.push('Pull request must have an assignee.');
                 }
