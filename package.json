@@ -1,0 +1,21 @@
+{
+  "name": "@baloran/pr-validator",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node24 --outdir=dist --external:@actions/*"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@10.24.0",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.1",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,16 @@
+name: pr-validator
+description: A GitHub Action to validate pull requests
+
+inputs:
+  mandatory-assignee: # id of input
+    description: Whether the PR must have an assignee
+    required: true
+    default: 'true'
+
+outputs:
+  isvalid:
+    description: Whether the PR is valid
+
+runs:
+  using: node20
+  main: dist/index.js
