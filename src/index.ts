@@ -69,6 +69,8 @@ async function run(): Promise<void> {
 
     if (totalChangedLines > 500) {
       messages += `Pull request has too many changed lines.`
+    } else {
+      messages += `Pull request has ${totalChangedLines} changed lines.`
     }
   } catch (error: any) {
     messages += `Error: ${error.message}`

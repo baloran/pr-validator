@@ -29986,7 +29986,12 @@ const ALLOWED_EXTENSIONS = [
 ];
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        const token = core.getInput('github-token', { required: true });
+        const token = process.env.GITHUB_TOKEN;
+        if (!token) {
+            core.error('GITHUB_TOKEN is not set');
+            core.setFailed('GITHUB_TOKEN is not set');
+            return;
+        }
         const octokit = github.getOctokit(token);
         const context = github.context;
         const pr = context.payload.pull_request;
@@ -30023,6 +30028,9 @@ function run() {
             const totalChangedLines = countChangedLinesByExtension(files, ALLOWED_EXTENSIONS);
             if (totalChangedLines > 500) {
                 messages += `Pull request has too many changed lines.`;
+            }
+            else {
+                messages += `Pull request has ${totalChangedLines} changed lines.`;
             }
         }
         catch (error) {
