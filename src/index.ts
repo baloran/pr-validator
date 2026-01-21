@@ -14,25 +14,23 @@ const ALLOWED_EXTENSIONS = [
 ]
 
 async function run(): Promise<void> {
+  const token = core.getInput('github-token', { required: true })
+  const octokit = github.getOctokit(token)
+  const context = github.context
+  const pr = context.payload.pull_request
   let messages: string = `
   ## PR Validator
 
   `
   try {
-    const token = core.getInput('github-token', { required: true })
-    const octokit = github.getOctokit(token)
     const mandatoryAssigneeInput = core.getInput('mandatory-assignee')
     const mandatoryAssignee = mandatoryAssigneeInput.toLowerCase() === 'true'
-
-    const context = github.context
 
     if (context.payload.pull_request == null) {
       messages += `This action can only be run on pull_request events.`
 
       return
     }
-
-    const pr = context.payload.pull_request
 
     let isValid = true
 
@@ -69,6 +67,15 @@ async function run(): Promise<void> {
   }
 
   core.setOutput('messages', messages)
+
+  if (pr) {
+    await octokit.rest.issues.createComment({
+      body: messages,
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      issue_number: pr.number,
+    })
+  }
 }
 
 type PullRequestFile = {
