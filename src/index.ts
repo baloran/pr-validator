@@ -14,7 +14,14 @@ const ALLOWED_EXTENSIONS = [
 ]
 
 async function run(): Promise<void> {
-  const token = core.getInput('github-token', { required: true })
+  const token = process.env.GITHUB_TOKEN
+
+  if (!token) {
+    core.error('GITHUB_TOKEN is not set')
+    core.setFailed('GITHUB_TOKEN is not set')
+    return
+  }
+
   const octokit = github.getOctokit(token)
   const context = github.context
   const pr = context.payload.pull_request
