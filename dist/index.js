@@ -29986,21 +29986,21 @@ const ALLOWED_EXTENSIONS = [
 ];
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
+        const token = core.getInput('github-token', { required: true });
+        const octokit = github.getOctokit(token);
+        const context = github.context;
+        const pr = context.payload.pull_request;
         let messages = `
   ## PR Validator
 
   `;
         try {
-            const token = core.getInput('github-token', { required: true });
-            const octokit = github.getOctokit(token);
             const mandatoryAssigneeInput = core.getInput('mandatory-assignee');
             const mandatoryAssignee = mandatoryAssigneeInput.toLowerCase() === 'true';
-            const context = github.context;
-            if (context.payload.pull_request == null) {
+            if (pr == null) {
                 messages += `This action can only be run on pull_request events.`;
                 return;
             }
-            const pr = context.payload.pull_request;
             let isValid = true;
             if (mandatoryAssignee) {
                 if (pr.assignees == null || pr.assignees.length === 0) {
@@ -30029,6 +30029,14 @@ function run() {
             messages += `Error: ${error.message}`;
         }
         core.setOutput('messages', messages);
+        if (pr) {
+            yield octokit.rest.issues.createComment({
+                body: messages,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+            });
+        }
     });
 }
 function countChangedLinesByExtension(files, allowedExtensions) {
