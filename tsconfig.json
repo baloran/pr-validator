@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2016",
     "module": "commonjs",
     "lib": [
-      "es6"
+      "es2016"
     ],
     "outDir": "./dist",
     "rootDir": "./src",
@@ -12,5 +12,7 @@
     "noImplicitAny": true,
     "esModuleInterop": true
   },
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
