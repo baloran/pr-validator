@@ -18,6 +18,7 @@ async function run(): Promise<void> {
   const octokit = github.getOctokit(token)
   const context = github.context
   const pr = context.payload.pull_request
+
   let messages: string = `
   ## PR Validator
 
@@ -26,7 +27,7 @@ async function run(): Promise<void> {
     const mandatoryAssigneeInput = core.getInput('mandatory-assignee')
     const mandatoryAssignee = mandatoryAssigneeInput.toLowerCase() === 'true'
 
-    if (context.payload.pull_request == null) {
+    if (pr == null) {
       messages += `This action can only be run on pull_request events.`
 
       return
