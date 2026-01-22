@@ -29995,29 +29995,17 @@ function run() {
         const octokit = github.getOctokit(token);
         const context = github.context;
         const pr = context.payload.pull_request;
-        let messages = `
-  ## PR Validator
-
-  `;
         try {
             const mandatoryAssigneeInput = core.getInput('mandatory-assignee');
             const mandatoryAssignee = mandatoryAssigneeInput.toLowerCase() === 'true';
             if (pr == null) {
-                messages += `This action can only be run on pull_request events.`;
+                core.error('This action can only be run on pull_request events.');
                 return;
             }
-            let isValid = true;
             if (mandatoryAssignee) {
                 if (pr.assignees == null || pr.assignees.length === 0) {
-                    isValid = false;
-                    messages += `Pull request must have an assignee.`;
+                    core.error('Pull request must have an assignee.');
                 }
-            }
-            if (isValid) {
-                core.info('Pull request is valid.');
-            }
-            else {
-                messages += `Pull request is invalid.`;
             }
             const files = yield octokit.paginate(octokit.rest.pulls.listFiles, {
                 owner: context.repo.owner,
@@ -30027,23 +30015,14 @@ function run() {
             });
             const totalChangedLines = countChangedLinesByExtension(files, ALLOWED_EXTENSIONS);
             if (totalChangedLines > 500) {
-                messages += `Pull request has too many changed lines.`;
+                core.error('Pull request has too many changed lines.');
             }
             else {
-                messages += `Pull request has ${totalChangedLines} changed lines.`;
+                core.info(`Pull request has ${totalChangedLines} changed lines.`);
             }
         }
         catch (error) {
-            messages += `Error: ${error.message}`;
-        }
-        core.setOutput('messages', messages);
-        if (pr) {
-            yield octokit.rest.issues.createComment({
-                body: messages,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.number,
-            });
+            core.error(`Error: ${error.message}`);
         }
     });
 }
