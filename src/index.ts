@@ -25,12 +25,14 @@ async function run(): Promise<void> {
   const octokit = github.getOctokit(token)
   const context = github.context
   const pr = context.payload.pull_request
+  let error = false
 
   try {
     const mandatoryAssigneeInput = core.getInput('mandatory-assignee')
     const mandatoryAssignee = mandatoryAssigneeInput.toLowerCase() === 'true'
 
     if (pr == null) {
+      error = true
       core.error('This action can only be run on pull_request events.')
 
       return
@@ -38,6 +40,7 @@ async function run(): Promise<void> {
 
     if (mandatoryAssignee) {
       if (pr.assignees == null || pr.assignees.length === 0) {
+        error = true
         core.error('Pull request must have an assignee.')
       }
     }
@@ -55,12 +58,18 @@ async function run(): Promise<void> {
     )
 
     if (totalChangedLines > 500) {
+      error = true
       core.error('Pull request has too many changed lines.')
     } else {
       core.info(`Pull request has ${totalChangedLines} changed lines.`)
     }
   } catch (error: any) {
-    core.error(`Error: ${error.message}`)
+    error = true
+    core.error(`Error: ${error?.message}`)
+  }
+
+  if (error) {
+    core.setFailed('Pull request is not valid.')
   }
 }
 

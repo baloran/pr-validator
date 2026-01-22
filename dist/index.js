@@ -29995,15 +29995,18 @@ function run() {
         const octokit = github.getOctokit(token);
         const context = github.context;
         const pr = context.payload.pull_request;
+        let error = false;
         try {
             const mandatoryAssigneeInput = core.getInput('mandatory-assignee');
             const mandatoryAssignee = mandatoryAssigneeInput.toLowerCase() === 'true';
             if (pr == null) {
+                error = true;
                 core.error('This action can only be run on pull_request events.');
                 return;
             }
             if (mandatoryAssignee) {
                 if (pr.assignees == null || pr.assignees.length === 0) {
+                    error = true;
                     core.error('Pull request must have an assignee.');
                 }
             }
@@ -30015,6 +30018,7 @@ function run() {
             });
             const totalChangedLines = countChangedLinesByExtension(files, ALLOWED_EXTENSIONS);
             if (totalChangedLines > 500) {
+                error = true;
                 core.error('Pull request has too many changed lines.');
             }
             else {
@@ -30022,7 +30026,11 @@ function run() {
             }
         }
         catch (error) {
-            core.error(`Error: ${error.message}`);
+            error = true;
+            core.error(`Error: ${error === null || error === void 0 ? void 0 : error.message}`);
+        }
+        if (error) {
+            core.setFailed('Pull request is not valid.');
         }
     });
 }
